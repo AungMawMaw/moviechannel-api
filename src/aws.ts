@@ -10,6 +10,16 @@ import {
   DeleteItemCommand,
   DeleteItemCommandInput,
   InternalServerError,
+  PutItemCommandInput,
+  PutItemCommand,
+  IndexNotFoundException,
+  TableNotFoundException,
+  AttributeValue,
+  DeleteItemCommandOutput,
+  UpdateItemCommandOutput,
+  PutItemCommandOutput,
+  GetItemCommandOutput,
+  GetItemCommandInput,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import {
@@ -38,9 +48,18 @@ export const dynamodb_descriveTable = async (
     const response = await client.send(command);
     console.log("Table retrieved", response.Table);
     return response;
-  } catch (error) {
-    console.error("Error describing table:", error);
-    throw error;
+  } catch (e) {
+    // console.error("Error describing table:", error);
+    // throw error;
+    if (e instanceof TableNotFoundException) {
+      console.error("Table  does not exist:", e);
+      throw e;
+      // Handle the case where the provided key does not exist
+      // For example, you can log a message or return an appropriate response
+    } else {
+      console.error(`Error describing table ${tableName} record:`, e);
+      throw e; // Re-throw other errors
+    }
   }
 };
 
@@ -98,6 +117,150 @@ export const dynamodb_getAllScanResult = async <T>(
   } catch (e) {
     console.error("Error getting all scan results:", e);
     throw e;
+  }
+};
+export const dynamodb_createRecord = async <T>(
+  tableName: string,
+  data: T,
+): Promise<PutItemCommandOutput> => {
+  try {
+    const params: PutItemCommandInput = {
+      TableName: tableName,
+      Item: marshall(data),
+    };
+    const command = new PutItemCommand(params);
+    const result = await client.send(command);
+    console.log("Record created", result);
+    return result;
+  } catch (e) {
+    console.error("Error creating record:", e);
+    throw e;
+  }
+};
+
+export const dynamodb_updateItem = async (
+  tablename: string,
+  Marshalled_KEY: Record<string, AttributeValue>, // Assuming movieId is the primary key of the movie record =>  marshall({ movieId: key_id })
+  updatedAttributes: Record<string, any>, // Object containing the attributes to update
+): Promise<UpdateItemCommandOutput> => {
+  try {
+    const updateExpression =
+      "SET " +
+      Object.keys(updatedAttributes)
+        .map((attribute) => `${attribute} = :${attribute}`)
+        .join(", ");
+
+    // Explicitly defining the type for expressionAttributeValues
+    const expressionAttributeValues: Record<string, any> = {};
+    for (const [key, value] of Object.entries(updatedAttributes)) {
+      expressionAttributeValues[`:${key}`] = value;
+    }
+
+    const params: UpdateItemCommandInput = {
+      TableName: tablename,
+      Key: Marshalled_KEY, // Marshall the primary key
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: marshall(expressionAttributeValues), // Marshall the attribute values object
+    };
+
+    const command = new UpdateItemCommand(params);
+    const result = await client.send(command);
+    console.log("record updated", result);
+    return result;
+  } catch (e) {
+    if (e instanceof IndexNotFoundException) {
+      console.error("IndexNotFound - provided key does not exist:", e);
+      // Handle the case where the provided key does not exist
+      // For example, you can log a message or return an appropriate response
+      throw e;
+    } else {
+      console.error("Error updating record:", e);
+      throw e; // Re-throw other errors
+    }
+  }
+};
+// export const dynamodb_updateRecord = async <T>(
+//   tableName: string,
+//   data: T,
+// ) => {
+//   try {
+//     const params: UpdateItemCommandInput= {
+//       TableName: tableName,
+//       Key: marshall({
+//         twitterId: tweeterId,
+//       }),
+//       UpdateExpression:
+//         "set #tweets = list_append(if_not_exists(#tweets, :empty_list), :tweet), #updated = :updated",
+//       ExpressionAttributeNames: {
+//         "#tweets": "tweets",
+//         "#updated": "updated",
+//       },
+//       ExpressionAttributeValues: marshall({
+//         ":tweet": [tweet],
+//         ":updated": Date.now(),
+//         ":empty_list": [],
+//       }),
+//     };
+//     const command = new PutItemCommand(params);
+//     const result = await client.send(command);
+//     console.log("Record created", result);
+//     return result;
+//   } catch (e) {
+//     console.error("Error creating record:", e);
+//     throw e;
+//   }
+// };
+export const dynamodb_deleteItem = async (
+  tableName: string,
+  Marshalled_KEY: Record<string, AttributeValue>, // Assuming movieId is the primary key of the movie record =>  marshall({ movieId: key_id })
+): Promise<DeleteItemCommandOutput> => {
+  try {
+    const params: DeleteItemCommandInput = {
+      TableName: tableName,
+      Key: Marshalled_KEY, // Provide the primary key of the item to delete
+    };
+
+    const command = new DeleteItemCommand(params);
+    const result = await client.send(command);
+    console.log("Movie record deleted", result);
+    return result;
+  } catch (e) {
+    if (e instanceof IndexNotFoundException) {
+      console.error("the provided key does not exist:", e);
+      throw e;
+      // Handle the case where the provided key does not exist
+      // For example, you can log a message or return an appropriate response
+    } else {
+      console.error("Error deleting movie record:", e);
+      throw e; // Re-throw other errors
+    }
+  }
+};
+
+export const dynamodb_getItem = async (
+  tableName: string,
+  Marshalled_KEY: Record<string, AttributeValue>, // Assuming movieId is the primary key of the movie record =>  marshall({ movieId: key_id })
+): Promise<GetItemCommandOutput> => {
+  try {
+    const params: GetItemCommandInput = {
+      TableName: tableName,
+      Key: Marshalled_KEY, // Provide the primary key of the item to delete
+    };
+
+    const command = new DeleteItemCommand(params);
+    const result = await client.send(command);
+    console.log(" record ", result);
+    return result;
+  } catch (e) {
+    if (e instanceof IndexNotFoundException) {
+      console.error("the provided key does not exist:", e);
+      throw e;
+      // Handle the case where the provided key does not exist
+      // For example, you can log a message or return an appropriate response
+    } else {
+      console.error("Error get record:", e);
+      throw e; // Re-throw other errors
+    }
   }
 };
 

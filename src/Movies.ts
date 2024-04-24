@@ -1,6 +1,11 @@
 import { APIGatewayProxyResult } from "aws-lambda";
-import { dynamodb_scanTable } from "./aws";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
+import {
+  dynamodb_createRecord,
+  dynamodb_deleteItem,
+  dynamodb_scanTable,
+  dynamodb_updateItem,
+} from "./aws";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import {
   ScanCommandOutput,
   InternalServerError,
@@ -96,55 +101,111 @@ export const createMovie = async (body?: any) => {
   if (!data) {
     BasRequest();
   }
-  return {
-    statusCode: 200,
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-      "Access-Control-Allow-Header": "Content-Type",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-    },
-    body: JSON.stringify({
-      Item: body,
-    }),
-  };
+  try {
+    const res = await dynamodb_createRecord(TABLE_NAME, data);
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body: JSON.stringify({
+        Item: res,
+      }),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body:
+        e instanceof Error
+          ? JSON.stringify({ error: e.message })
+          : JSON.stringify({ error: `Internal Server Unknown Error` }),
+    };
+  }
 };
 
 export const updateMovie = async (body?: any) => {
   const { id } = body;
   const data: Movie = body;
-  if (!(id && data)) {
+  if (!(id || data)) {
     BasRequest();
   }
-  return {
-    statusCode: 200,
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-      "Access-Control-Allow-Header": "Content-Type",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-    },
-    body: JSON.stringify({
-      Item: body,
-    }),
-  };
+  try {
+    const marshalledkey = marshall({ movieId: id });
+    const res = await dynamodb_updateItem(TABLE_NAME, marshalledkey, data);
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body: JSON.stringify({
+        Item: res,
+      }),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body:
+        e instanceof Error
+          ? JSON.stringify({ error: e.message })
+          : JSON.stringify({ error: `Internal Server Unknown Error` }),
+    };
+  }
 };
 export const deleteMovie = async (id?: string) => {
   if (!id) {
     BasRequest();
   }
-  return {
-    statusCode: 200,
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-      "Access-Control-Allow-Header": "Content-Type",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-    },
-    body: JSON.stringify({
-      Item: id,
-    }),
-  };
+  try {
+    const marshalledkey = marshall({ movieId: id });
+    const res = await dynamodb_deleteItem(TABLE_NAME, marshalledkey);
+    if (!res) {
+      NotFound();
+    }
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body: JSON.stringify({
+        Item: res,
+      }),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body:
+        e instanceof Error
+          ? JSON.stringify({ error: e.message })
+          : JSON.stringify({ error: `Internal Server Unknown Error` }),
+    };
+  }
 };
 
 export const BasRequest = async () => {
@@ -157,7 +218,21 @@ export const BasRequest = async () => {
       "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
     },
     body: JSON.stringify({
-      title: `BasRequest something is missing`,
+      error: `something is missing`,
+    }),
+  };
+};
+export const NotFound = async () => {
+  return {
+    statusCode: 404,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "Access-Control-Allow-Header": "Content-Type",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+    },
+    body: JSON.stringify({
+      error: "Item not found",
     }),
   };
 };
