@@ -48,7 +48,7 @@ resource "aws_lambda_function" "sendmovie" {
   timeout       = 30
   environment {
     variables = {
-      AWS_REGION               = "${var.aws_region}"
+      # AWS_REGION               = "${var.aws_region}"
       AWS_WEBSOCKET_TABLE_NAME = "${var.websocket_table_name}"
       AWS_SQS_QUEUE_URL        = "https://sqs.ap-southeast-1.amazonaws.com/688217156264/movie_sqs_que"
       AWS_WEBSOCKET_URL        = "${aws_apigatewayv2_api.websocket_gw.api_endpoint}/${var.api_gateway_stage_name}"
