@@ -11,6 +11,13 @@ import {
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
+  // Check if event.requestContext.http is defined
+  if (!event.requestContext || !event.requestContext.http) {
+    return {
+      statusCode: 400,
+      body: "Bad request: requestContext or http property is missing",
+    };
+  }
   const method = event.requestContext.http.method;
   const resourceId = event.pathParameters?.id;
 

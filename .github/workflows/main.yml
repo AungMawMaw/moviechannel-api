@@ -98,7 +98,7 @@ jobs:
           docker push $AWS_ECR_REGISTRY/$AWS_ECR_REPOSITORY:$AWS_IMAGE_TAG
           echo "::set-output name=image::$AWS_ECR_REGISTRY/$AWS_ECR_REPOSITORY:$AWS_IMAGE_TAG"
 
-      - name: Build crudmovie ECR
+      - name: Build crudmovies ECR
         uses: int128/create-ecr-repository-action@v1
         id: crudmovies-ecr
         with:
