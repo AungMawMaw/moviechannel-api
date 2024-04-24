@@ -9,7 +9,7 @@ import {
 export const handler = async (
   event: SQSEvent,
 ): Promise<APIGatewayProxyResult> => {
-  const TABLE_NAME =
+  const WS_TABLE_NAME =
     process.env.AWS_WEBSOCKET_TABLE_NAME ??
     "moviechannel-websocket-connections";
   const SQS_URL =
@@ -37,7 +37,7 @@ export const handler = async (
   }
 
   const dbRes = await dynamodb_getAllScanResult<{ connectionId: string }>(
-    TABLE_NAME,
+    WS_TABLE_NAME,
   );
   if (dbRes instanceof Error) {
     return {
@@ -50,10 +50,13 @@ export const handler = async (
       }),
     };
   }
+  console.log(
+    `connections: ${dbRes},\ntableName: ${WS_TABLE_NAME},\napiGateway: ${apiManagementApi},\nmessage:${message}`,
+  );
 
   const broadcastRes = await broadcastMessageWebsocket({
     apiGateway: apiManagementApi,
-    tableName: TABLE_NAME,
+    tableName: WS_TABLE_NAME,
     message: message,
     connections: dbRes,
   });

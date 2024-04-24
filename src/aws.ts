@@ -183,37 +183,48 @@ interface BroadcastMessageWebsocketProps {
 export const broadcastMessageWebsocket = async (
   props: BroadcastMessageWebsocketProps,
 ) => {
-  const sendVendorCall = props.connections?.map(async (connection) => {
-    const { connectionId } = connection;
-    try {
-      const input: PostToConnectionCommandInputType = {
-        // PostToConnectionRequest
-        Data: props.message, //new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")   // required
-        ConnectionId: connectionId.toString(), // required
-      };
-      const command = new PostToConnectionCommand(input);
-      const res = await props.apiGateway.send(command);
-      console.log(res);
-      return res;
-    } catch (e) {
-      if ((e as any).statusCode === 410) {
-        console.log(`del statle connection, ${connectionId}`);
-        const removeCon_res = await dynamodb_RemoveConnection(
-          props.tableName,
-          connectionId,
-        );
-        if (removeCon_res instanceof Error) {
-          return e;
-        } else {
-          return e;
-        }
-      }
-    }
-  });
+  // const { apiGateway,connections,tableName,message} = props
 
   try {
-    const res = await Promise.all(sendVendorCall);
-    return res;
+    const sendMovieCall = props.connections?.map(async (connection) => {
+      const { connectionId } = connection;
+      try {
+        const input: PostToConnectionCommandInputType = {
+          // PostToConnectionRequest
+          Data: props.message, //new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")   // required
+          ConnectionId: connectionId.toString(), // required
+        };
+        const command = new PostToConnectionCommand(input);
+        const res = await props.apiGateway.send(command);
+        console.log(res);
+        return res;
+      } catch (e) {
+        if ((e as any).statusCode === 410) {
+          console.log(`del statle connection, ${connectionId}`);
+          const removeCon_res = await dynamodb_RemoveConnection(
+            props.tableName,
+            connectionId,
+          );
+          if (removeCon_res instanceof Error) {
+            return e;
+          } else {
+            return e;
+          }
+        }
+      }
+    });
+
+    try {
+      const res = await Promise.all(sendMovieCall);
+      return res;
+    } catch (e) {
+      if (e instanceof Error) {
+        return e;
+      }
+      return new Error(
+        ` broadcastMessageWebsocket error obj unknown type Error`,
+      );
+    }
   } catch (e) {
     if (e instanceof Error) {
       return e;
