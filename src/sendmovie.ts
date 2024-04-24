@@ -51,7 +51,7 @@ export const handler = async (
     };
   }
   console.log(
-    `connections: ${dbRes},\ntableName: ${WS_TABLE_NAME},\napiGateway: ${apiManagementApi},\nmessage:${message}`,
+    `connections: ${JSON.stringify(dbRes)},\ntableName: ${WS_TABLE_NAME},\napiGateway: ${JSON.stringify(apiManagementApi)},\nmessage:${message}`,
   );
 
   const broadcastRes = await broadcastMessageWebsocket({
