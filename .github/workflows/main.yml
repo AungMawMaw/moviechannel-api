@@ -22,8 +22,8 @@ jobs:
       - name: Configure AWS credentials from AWS account
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_OIDC_ARN }}
-          role-session-name: ${{ secrets.AWS_OIDC_SESSION_NAME }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          role-session-name: ${{ secrets.AWS_OIDC_ROLE_SESSION_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       # - name: Login to Amazon ECR
@@ -114,8 +114,8 @@ jobs:
         id: init
         working-directory: ./terraform
         env:
-          AWS_BUCKET_NAME: ${{ secrets.AWS_TFSTATE_S3_NAME }}
-          AWS_BUCKET_KEY_NAME: ${{ secrets.AWS_TFSTATE_KEY_NAME }}
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_BUCKET_KEY_NAME: ${{ secrets.AWS_BUCKET_KEY_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: >
           terraform init -backend-config="bucket=${AWS_BUCKET_NAME}" 
