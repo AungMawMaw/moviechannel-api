@@ -1,4 +1,4 @@
-import { APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyResult } from "aws-lambda";
 import { dynamodb_scanTable } from "./aws";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 import {
@@ -12,7 +12,7 @@ const TABLE_NAME = process.env.AWS_TABLE_NAME ?? "movies";
 export const getMovie_list = async (
   page_limt?: string,
   lastEvaluatedKey?: any,
-): Promise<APIGatewayProxyResultV2> => {
+): Promise<APIGatewayProxyResult> => {
   let scanTabelGen: AsyncGenerator<
     ScanCommandOutput,
     void,
