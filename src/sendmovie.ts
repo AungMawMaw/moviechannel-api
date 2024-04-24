@@ -78,14 +78,20 @@ export const handler = async (
     const sendMovieCall = props.connections?.map(async (connection) => {
       const { connectionId } = connection;
       try {
+        console.log("connectionID", connectionId);
+
         const input: PostToConnectionCommandInputType = {
           // PostToConnectionRequest
           Data: props.message, //new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")   // required
           ConnectionId: connectionId.toString(), // required
         };
+
+        console.log("input", input);
         const command = new PostToConnectionCommand(input);
+
+        console.log("command", command);
         const res = await props.apiGateway.send(command);
-        console.log(res);
+        console.log("result", res);
         return res;
       } catch (e) {
         if ((e as any).statusCode === 410) {
