@@ -123,7 +123,7 @@ resource "aws_apigatewayv2_integration" "deleteMovieIntegration" {
 ### ROUTES
 resource "aws_apigatewayv2_route" "_getMoviesRoute" {
   api_id    = aws_apigatewayv2_api.http_gw.id
-  route_key = "GET /movies"
+  route_key = "GET /movie"
   target    = "integrations/${aws_apigatewayv2_integration.getMoviesIntegration.id}"
 }
 
