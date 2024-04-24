@@ -93,10 +93,10 @@ resource "aws_lambda_permission" "getmovies_permision" {
 
 #### end of lambda getmovies
 
-resource "aws_lambda_function" "crudMovie" {
-  function_name = "${var.app_name}-crudMovie"
+resource "aws_lambda_function" "crudmovie" {
+  function_name = "${var.app_name}-crudmovie"
   role          = aws_iam_role.lambda_main.arn
-  image_uri     = "${local.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/crudMovie:${var.image_tag}"
+  image_uri     = "${local.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/crudmovie:${var.image_tag}"
   package_type  = "Image"
   timeout       = 30
   environment {
@@ -105,8 +105,8 @@ resource "aws_lambda_function" "crudMovie" {
     }
   }
 }
-resource "aws_lambda_permission" "crudMovie_permision" {
-  function_name = aws_lambda_function.crudMovie.function_name
+resource "aws_lambda_permission" "crudmovie_permision" {
+  function_name = aws_lambda_function.crudmovie.function_name
   principal     = "apigateway.amazonaws.com"
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
