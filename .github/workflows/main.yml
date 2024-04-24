@@ -206,19 +206,19 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      # - name: Terraform Apply
-      #   id: apply
-      #   working-directory: ./terraform
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform apply -auto-approve -input=false
-      #   env:
-      #     TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
-      #     TF_VAR_image_tag: ${{ github.sha }}
-
-      - name: Terraform Destroy
-        id: destroy
+      - name: Terraform Apply
+        id: apply
         working-directory: ./terraform
-        run: terraform destroy -auto-approve -input=false
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
         env:
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
           TF_VAR_image_tag: ${{ github.sha }}
+
+      # - name: Terraform Destroy
+      #   id: destroy
+      #   working-directory: ./terraform
+      #   run: terraform destroy -auto-approve -input=false
+      #   env:
+      #     TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+      #     TF_VAR_image_tag: ${{ github.sha }}
