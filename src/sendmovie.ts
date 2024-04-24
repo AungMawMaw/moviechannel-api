@@ -5,7 +5,6 @@ import {
   PostToConnectionCommandInputType,
 } from "@aws-sdk/client-apigatewaymanagementapi";
 import {
-  broadcastMessageWebsocket,
   dynamodb_RemoveConnection,
   dynamodb_getAllScanResult,
   sqsDeleteMsg,
