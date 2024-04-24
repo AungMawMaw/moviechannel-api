@@ -69,3 +69,20 @@ RUN mkdir -p ${FUNCTION_DIR}
 
 CMD ["build/getmovies.handler"] 
 
+#crudmovie
+FROM amazon/aws-lambda-nodejs:18 AS crudmovie
+
+ARG FUNCTION_DIR="var/task"
+
+COPY package.json .
+
+RUN npm install && npm install typescript -g
+
+COPY . .
+
+RUN tsc
+
+RUN mkdir -p ${FUNCTION_DIR}
+
+CMD ["build/crudmovie.handler"] 
+

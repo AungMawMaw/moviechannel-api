@@ -93,8 +93,25 @@ resource "aws_lambda_permission" "getmovies_permision" {
 
 #### end of lambda getmovies
 
-
-
+resource "aws_lambda_function" "crudMovie" {
+  function_name = "${var.app_name}-crudMovie"
+  role          = aws_iam_role.lambda_main.arn
+  image_uri     = "${local.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/crudMovie:${var.image_tag}"
+  package_type  = "Image"
+  timeout       = 30
+  environment {
+    variables = {
+      AWS_TABLE_NAME = "${var.movie_table_name}"
+    }
+  }
+}
+resource "aws_lambda_permission" "crudMovie_permision" {
+  function_name = aws_lambda_function.crudMovie.function_name
+  principal     = "apigateway.amazonaws.com"
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  source_arn    = "${aws_apigatewayv2_api.http_gw.execution_arn}/*/*"
+}
 
 #NOTE: uncomment => main.yml> ecr blah blah and git upload
 

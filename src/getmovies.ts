@@ -1,4 +1,8 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResult,
+  APIGatewayProxyResultV2,
+} from "aws-lambda";
 import { dynamodb_scanTable } from "./aws";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import {
@@ -7,8 +11,8 @@ import {
 } from "@aws-sdk/client-dynamodb";
 
 export const handler = async (
-  event: APIGatewayProxyEvent,
-): Promise<APIGatewayProxyResult> => {
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
   const TABLE_NAME = process.env.AWS_TABLE_NAME ?? "movies";
   const page_limt = event.queryStringParameters?.limit;
   const lastEvaluatedKey = event.queryStringParameters?.lastEvaluatedKey

@@ -87,3 +87,61 @@ resource "aws_apigatewayv2_stage" "primary_http" {
   api_id      = aws_apigatewayv2_api.http_gw.id
   auto_deploy = true
 }
+###############################################
+### Integration for GET /movies
+resource "aws_apigatewayv2_integration" "getMoviesIntegration" {
+  api_id             = aws_apigatewayv2_api.http_gw.id
+  integration_uri    = aws_lambda_function.crudMovie.invoke_arn
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST" # This is just a placeholder, as AWS_PROXY doesn't use this value for Lambda integrations
+}
+
+### Integration for POST /movies
+resource "aws_apigatewayv2_integration" "createMovieIntegration" {
+  api_id             = aws_apigatewayv2_api.http_gw.id
+  integration_uri    = aws_lambda_function.crudMovie.invoke_arn
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
+}
+
+### Integration for PUT /movies/{id}
+resource "aws_apigatewayv2_integration" "updateMovieIntegration" {
+  api_id             = aws_apigatewayv2_api.http_gw.id
+  integration_uri    = aws_lambda_function.crudMovie.invoke_arn
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST" # You may want to change this to PUT if your Lambda function supports it
+}
+
+### Integration for DELETE /movies/{id}
+resource "aws_apigatewayv2_integration" "deleteMovieIntegration" {
+  api_id             = aws_apigatewayv2_api.http_gw.id
+  integration_uri    = aws_lambda_function.crudMovie.invoke_arn
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST" # You may want to change this to DELETE if your Lambda function supports it
+}
+
+### ROUTES
+resource "aws_apigatewayv2_route" "_getMoviesRoute" {
+  api_id    = aws_apigatewayv2_api.http_gw.id
+  route_key = "GET /movies"
+  target    = "integrations/${aws_apigatewayv2_integration.getMoviesIntegration.id}"
+}
+
+resource "aws_apigatewayv2_route" "_createMovieRoute" {
+  api_id    = aws_apigatewayv2_api.http_gw.id
+  route_key = "POST /movies"
+  target    = "integrations/${aws_apigatewayv2_integration.createMovieIntegration.id}"
+}
+
+resource "aws_apigatewayv2_route" "_updateMovieRoute" {
+  api_id    = aws_apigatewayv2_api.http_gw.id
+  route_key = "PUT /movies/{id}"
+  target    = "integrations/${aws_apigatewayv2_integration.updateMovieIntegration.id}"
+}
+
+resource "aws_apigatewayv2_route" "_deleteMovieRoute" {
+  api_id    = aws_apigatewayv2_api.http_gw.id
+  route_key = "DELETE /movies/{id}"
+  target    = "integrations/${aws_apigatewayv2_integration.deleteMovieIntegration.id}"
+}
+
