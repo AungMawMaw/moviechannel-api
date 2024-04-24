@@ -215,8 +215,9 @@ export const broadcastMessageWebsocket = async (
     });
 
     try {
-      const res = await Promise.all(sendMovieCall);
-      return res;
+      const results = await Promise.all(sendMovieCall);
+      const filteredResults = results.filter((result) => result !== null);
+      return filteredResults;
     } catch (e) {
       if (e instanceof Error) {
         return e;

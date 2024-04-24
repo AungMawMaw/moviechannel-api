@@ -73,7 +73,8 @@ export const handler = async (
     };
   }
   console.log(`sent message: ${message} to ${dbRes.length} users!`);
-  console.log("brpwcastres", broadcastRes);
+  console.log("broadcastRed", broadcastRes);
+  console.log("broadcastRed2", JSON.stringify(broadcastRes));
 
   try {
     console.log(
