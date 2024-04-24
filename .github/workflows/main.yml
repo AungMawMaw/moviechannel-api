@@ -100,12 +100,12 @@ jobs:
 
       - name: Build crudmovie ECR
         uses: int128/create-ecr-repository-action@v1
-        id: crudmovie-ecr
+        id: crudmovies-ecr
         with:
           repository: ${{ secrets.AWS_ECR_NAME_CRUDMOVIE }}
 
-      - name: Build, tag, and push crudmovie image to Amazon ECR
-        id: build-image-crudmovie
+      - name: Build, tag, and push crudmovies image to Amazon ECR
+        id: build-image-crudmovies
         env:
           AWS_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           AWS_IMAGE_TAG: ${{ github.sha }}
