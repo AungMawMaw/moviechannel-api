@@ -100,7 +100,7 @@ jobs:
 
       - name: Build crudmovie ECR
         uses: int128/create-ecr-repository-action@v1
-        id: getmovies-ecr
+        id: crudmovie-ecr
         with:
           repository: ${{ secrets.AWS_ECR_NAME_CRUDMOVIE }}
 
