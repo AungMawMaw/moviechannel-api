@@ -12,6 +12,8 @@ export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   // Check if event.requestContext.http is defined
+  console.log(event);
+  console.log(JSON.stringify(event));
   if (!event.requestContext || !event.requestContext.http) {
     return {
       statusCode: 400,
@@ -19,6 +21,7 @@ export const handler = async (
     };
   }
   const method = event.requestContext.http.method;
+  console.log(method);
   const resourceId = event.pathParameters?.id;
 
   switch (method) {
