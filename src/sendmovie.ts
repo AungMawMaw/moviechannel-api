@@ -1,7 +1,12 @@
 import { APIGatewayProxyResult, SQSEvent } from "aws-lambda";
-import { ApiGatewayManagementApiClient } from "@aws-sdk/client-apigatewaymanagementapi";
+import {
+  ApiGatewayManagementApiClient,
+  PostToConnectionCommand,
+  PostToConnectionCommandInputType,
+} from "@aws-sdk/client-apigatewaymanagementapi";
 import {
   broadcastMessageWebsocket,
+  dynamodb_RemoveConnection,
   dynamodb_getAllScanResult,
   sqsDeleteMsg,
 } from "./aws";
@@ -54,27 +59,90 @@ export const handler = async (
     `connections: ${JSON.stringify(dbRes)},\ntableName: ${WS_TABLE_NAME},\napiGateway: ${JSON.stringify(apiManagementApi)},\nmessage:${message}`,
   );
 
-  const broadcastRes = await broadcastMessageWebsocket({
+  // const broadcastRes = await broadcastMessageWebsocket({
+  //   apiGateway: apiManagementApi,
+  //   tableName: WS_TABLE_NAME,
+  //   message: message,
+  //   connections: dbRes,
+  // });
+  //
+  let broadcastRes;
+  const props = {
     apiGateway: apiManagementApi,
     tableName: WS_TABLE_NAME,
     message: message,
     connections: dbRes,
-  });
+  };
 
-  if (broadcastRes instanceof Error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        Headers: {
-          "content-type": "text/plain; charset=utf-8",
-        },
-        message: broadcastRes.message,
-      }),
-    };
+  try {
+    const sendMovieCall = props.connections?.map(async (connection) => {
+      const { connectionId } = connection;
+      try {
+        const input: PostToConnectionCommandInputType = {
+          // PostToConnectionRequest
+          Data: props.message, //new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")   // required
+          ConnectionId: connectionId.toString(), // required
+        };
+        const command = new PostToConnectionCommand(input);
+        const res = await props.apiGateway.send(command);
+        console.log(res);
+        return res;
+      } catch (e) {
+        if ((e as any).statusCode === 410) {
+          console.log(`del statle connection, ${connectionId}`);
+          const removeCon_res = await dynamodb_RemoveConnection(
+            props.tableName,
+            connectionId,
+          );
+          if (removeCon_res instanceof Error) {
+            return e;
+          } else {
+            return e;
+          }
+        }
+      }
+    });
+
+    try {
+      const results = await Promise.all(sendMovieCall);
+      // return results;
+      console.log(results);
+      const filteredResults = results.filter((result) => result !== null);
+      console.log(filteredResults);
+      // return filteredResults;
+    } catch (e) {
+      if (e instanceof Error) {
+        // return e;
+        console.log(e);
+      }
+      // return new Error(
+      //   ` broadcastMessageWebsocket error obj unknown type Error`,
+      //
+      console.log(e);
+    }
+  } catch (e) {
+    if (e instanceof Error) {
+      console.log(e);
+    }
+    console.log(e);
   }
-  console.log(`sent message: ${message} to ${dbRes.length} users!`);
-  console.log("broadcastRed", broadcastRes);
-  console.log("broadcastRed2", JSON.stringify(broadcastRes));
+
+  //
+
+  // if (broadcastRes instanceof Error) {
+  //   return {
+  //     statusCode: 500,
+  //     body: JSON.stringify({
+  //       Headers: {
+  //         "content-type": "text/plain; charset=utf-8",
+  //       },
+  //       message: broadcastRes.message,
+  //     }),
+  //   };
+  // }
+  // console.log(`sent message: ${message} to ${dbRes.length} users!`);
+  // console.log("broadcastRed", broadcastRes);
+  // console.log("broadcastRed2", JSON.stringify(broadcastRes));
 
   try {
     console.log(
