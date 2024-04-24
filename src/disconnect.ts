@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { dynamodb_AddConnection, dynamodb_RemoveConnection } from "./aws";
+import { dynamodb_RemoveConnection } from "./aws";
 
 export const handler = async (
   event: APIGatewayProxyEvent,

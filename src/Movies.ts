@@ -1,6 +1,6 @@
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { dynamodb_scanTable } from "./aws";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import {
   ScanCommandOutput,
   InternalServerError,
