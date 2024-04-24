@@ -1,4 +1,4 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import {
   createMovie,
@@ -9,18 +9,18 @@ import {
 } from "./Movies";
 
 export const handler = async (
-  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
+  event: APIGatewayProxyEvent,
+): Promise<APIGatewayProxyResult> => {
   // Check if event.requestContext.http is defined
   console.log(event);
   console.log(JSON.stringify(event));
-  if (!event.requestContext || !event.requestContext.http) {
+  if (!event.requestContext || !event.requestContext.httpMethod) {
     return {
       statusCode: 400,
       body: "Bad request: requestContext or http property is missing",
     };
   }
-  const method = event.requestContext.http.method;
+  const method = event.requestContext.httpMethod;
   console.log(method);
   const resourceId = event.pathParameters?.id;
 
