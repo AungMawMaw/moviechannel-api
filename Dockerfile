@@ -70,7 +70,7 @@ RUN mkdir -p ${FUNCTION_DIR}
 CMD ["build/getmovies.handler"] 
 
 #crudmovie
-FROM amazon/aws-lambda-nodejs:18 AS crudmovie
+FROM amazon/aws-lambda-nodejs:18 AS crudmovies
 
 ARG FUNCTION_DIR="var/task"
 
@@ -84,5 +84,4 @@ RUN tsc
 
 RUN mkdir -p ${FUNCTION_DIR}
 
-CMD ["build/crudmovie.handler"] 
-
+CMD ["build/crudmovies.handler"] 

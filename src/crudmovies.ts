@@ -45,7 +45,4 @@ export const handler = async (
         body: "Method not allowed",
       };
   }
-
-  // TEST: v3
-  ///////////////////////////////////////////////////////////////////////////
 };
