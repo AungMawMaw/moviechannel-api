@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import {
+  BasRequest,
   createMovie,
   deleteMovie,
   getMovie,
@@ -48,7 +49,10 @@ export const handler = async (
       return updateMovie(event.body);
     case "DELETE":
       // Delete operation
-      return deleteMovie(resourceId);
+      if (resourceId) {
+        return deleteMovie(resourceId);
+      }
+      BasRequest();
     default:
       return {
         statusCode: 405,

@@ -49,13 +49,9 @@ export const dynamodb_descriveTable = async (
     console.log("Table retrieved", response.Table);
     return response;
   } catch (e) {
-    // console.error("Error describing table:", error);
-    // throw error;
     if (e instanceof TableNotFoundException) {
       console.error("Table  does not exist:", e);
       throw e;
-      // Handle the case where the provided key does not exist
-      // For example, you can log a message or return an appropriate response
     } else {
       console.error(`Error describing table ${tableName} record:`, e);
       throw e; // Re-throw other errors
