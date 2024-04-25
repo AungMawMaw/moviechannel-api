@@ -2,6 +2,7 @@ import { APIGatewayProxyResult } from "aws-lambda";
 import {
   dynamodb_createRecord,
   dynamodb_deleteItem,
+  dynamodb_getItem,
   dynamodb_scanTable,
   dynamodb_updateItem,
 } from "./aws";
@@ -10,7 +11,7 @@ import {
   ScanCommandOutput,
   InternalServerError,
 } from "@aws-sdk/client-dynamodb";
-import { Movie } from "./types/movies";
+import { Movie, MovieWithoutID } from "./types/movies";
 
 const TABLE_NAME = process.env.AWS_TABLE_NAME ?? "movies";
 
@@ -82,25 +83,45 @@ export const getMovie_list = async (
 };
 
 export const getMovie = async (id: string) => {
-  return {
-    statusCode: 200,
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-      "Access-Control-Allow-Header": "Content-Type",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-    },
-    body: JSON.stringify({
-      Item: id,
-    }),
-  };
+  try {
+    const marshalledkey = marshall({ movieId: id });
+
+    const res = await dynamodb_getItem(TABLE_NAME, marshalledkey);
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body: JSON.stringify({
+        Item: res,
+      }),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "Access-Control-Allow-Header": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+      },
+      body:
+        e instanceof Error
+          ? JSON.stringify({ error: e.message })
+          : JSON.stringify({ error: `Internal Server Unknown Error` }),
+    };
+  }
 };
 
 export const createMovie = async (body?: any) => {
-  const data: Movie = body;
+  const data: MovieWithoutID = body;
   if (!data) {
     BasRequest();
   }
+  // const id=
   try {
     const res = await dynamodb_createRecord(TABLE_NAME, data);
     return {

@@ -61,3 +61,5 @@ export interface Movie {
   created: number;
   updated: number;
 }
+
+export type MovieWithoutID = Omit<Movie, "movieId">;
