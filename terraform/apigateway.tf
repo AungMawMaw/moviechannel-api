@@ -128,12 +128,11 @@ resource "aws_apigatewayv2_route" "_getMoviesRoute" {
   target    = "integrations/${aws_apigatewayv2_integration.getMoviesIntegration.id}"
 }
 
-resource "aws_apigatewayv2_route" "_getMoviesRoute" {
+resource "aws_apigatewayv2_route" "_getMovieswithIdRoute" {
   api_id    = aws_apigatewayv2_api.http_gw.id
   route_key = "GET /movies/{id}"
   target    = "integrations/${aws_apigatewayv2_integration.getMovieswihtidIntegration}"
 }
-
 
 resource "aws_apigatewayv2_route" "_createMovieRoute" {
   api_id    = aws_apigatewayv2_api.http_gw.id
