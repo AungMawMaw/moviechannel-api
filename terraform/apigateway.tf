@@ -90,7 +90,7 @@ resource "aws_apigatewayv2_integration" "getMoviesIntegration" {
   integration_method = "POST" # This is just a placeholder, as AWS_PROXY doesn't use this value for Lambda integrations
 }
 
-resource "aws_apigatewayv2_integration" "getMovieswihtidIntegration" {
+resource "aws_apigatewayv2_integration" "getMovieswithidIntegration" {
   api_id             = aws_apigatewayv2_api.http_gw.id
   integration_uri    = aws_lambda_function.crudmovies.invoke_arn
   integration_type   = "AWS_PROXY"
@@ -128,10 +128,10 @@ resource "aws_apigatewayv2_route" "_getMoviesRoute" {
   target    = "integrations/${aws_apigatewayv2_integration.getMoviesIntegration.id}"
 }
 
-resource "aws_apigatewayv2_route" "_getMovieswithIdRoute" {
+resource "aws_apigatewayv2_route" "_getMovieswithidRoute" {
   api_id    = aws_apigatewayv2_api.http_gw.id
   route_key = "GET /movies/{id}"
-  target    = "integrations/${aws_apigatewayv2_integration.getMovieswihtidIntegration}"
+  target    = "integrations/${aws_apigatewayv2_integration.getMovieswithidIntegration.id}"
 }
 
 resource "aws_apigatewayv2_route" "_createMovieRoute" {
