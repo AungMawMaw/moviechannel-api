@@ -162,6 +162,9 @@ export const updateMovie = async (body?: any) => {
   try {
     const marshalledkey = marshall({ movieId: id });
     const res = await dynamodb_updateItem(TABLE_NAME, marshalledkey, data);
+    if (!res) {
+      NotFound();
+    }
     return {
       statusCode: 200,
       headers: {
@@ -190,10 +193,7 @@ export const updateMovie = async (body?: any) => {
     };
   }
 };
-export const deleteMovie = async (id?: string) => {
-  if (!id) {
-    BasRequest();
-  }
+export const deleteMovie = async (id: string) => {
   try {
     const marshalledkey = marshall({ movieId: id });
     const res = await dynamodb_deleteItem(TABLE_NAME, marshalledkey);
