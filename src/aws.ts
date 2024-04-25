@@ -20,6 +20,7 @@ import {
   PutItemCommandOutput,
   GetItemCommandOutput,
   GetItemCommandInput,
+  GetItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import {
@@ -243,7 +244,7 @@ export const dynamodb_getItem = async (
       Key: Marshalled_KEY, // Provide the primary key of the item to delete
     };
 
-    const command = new DeleteItemCommand(params);
+    const command = new GetItemCommand(params);
     const result = await client.send(command);
     console.log(" record ", result);
     return result;
@@ -251,8 +252,6 @@ export const dynamodb_getItem = async (
     if (e instanceof IndexNotFoundException) {
       console.error("the provided key does not exist:", e);
       throw e;
-      // Handle the case where the provided key does not exist
-      // For example, you can log a message or return an appropriate response
     } else {
       console.error("Error get record:", e);
       throw e; // Re-throw other errors

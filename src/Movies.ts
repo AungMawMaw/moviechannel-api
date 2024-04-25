@@ -87,6 +87,9 @@ export const getMovie = async (id: string) => {
     const marshalledkey = marshall({ movieId: id });
 
     const res = await dynamodb_getItem(TABLE_NAME, marshalledkey);
+    if (res!) {
+      BasRequest();
+    }
     return {
       statusCode: 200,
       headers: {
